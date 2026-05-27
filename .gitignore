@@ -1,1 +1,3 @@
 hello.c.txt
+!bin/
+!bin/*.exe
