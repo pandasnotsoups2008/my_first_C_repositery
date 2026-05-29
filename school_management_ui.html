@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management</title>
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --surface: #ffffff;
+            --surface-2: #edf5f3;
+            --text: #1f2937;
+            --muted: #64748b;
+            --line: #d7e2df;
+            --teal: #0f766e;
+            --teal-dark: #115e59;
+            --blue: #2563eb;
+            --red: #b91c1c;
+            --amber: #b45309;
+            --shadow: 0 14px 35px rgba(31, 41, 55, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+        }
+
+        .app-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: #18332f;
+            color: #ffffff;
+            border-bottom: 4px solid #e5a92b;
+        }
+
+        .topbar-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .brand {
+            min-width: 210px;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(100px, 1fr));
+            gap: 10px;
+            width: min(520px, 100%);
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .metric span {
+            display: block;
+            color: #cfe3de;
+            font-size: 12px;
+        }
+
+        .metric strong {
+            display: block;
+            margin-top: 3px;
+            font-size: 20px;
+        }
+
+        main {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            padding: 22px 20px 32px;
+            flex: 1;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .panel,
+        .table-panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel {
+            padding: 16px;
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .tab-button {
+            min-height: 38px;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .tab-button.active {
+            background: var(--teal);
+            color: #ffffff;
+        }
+
+        .form-title {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        input {
+            min-height: 40px;
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #ffffff;
+            color: var(--text);
+            padding: 8px 10px;
+        }
+
+        input:focus {
+            outline: 3px solid rgba(15, 118, 110, 0.18);
+            border-color: var(--teal);
+        }
+
+        .salary-row,
+        .actions-row,
+        .filter-row {
+            display: grid;
+            gap: 8px;
+        }
+
+        .salary-row {
+            grid-template-columns: 1fr 92px;
+            align-items: end;
+        }
+
+        .actions-row {
+            grid-template-columns: 1fr 1fr;
+            margin-top: 14px;
+        }
+
+        .filter-row {
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            padding: 14px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .primary-button,
+        .secondary-button,
+        .danger-button,
+        .small-button {
+            min-height: 40px;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-weight: 700;
+        }
+
+        .primary-button {
+            background: var(--teal);
+            color: #ffffff;
+        }
+
+        .primary-button:hover {
+            background: var(--teal-dark);
+        }
+
+        .secondary-button {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .secondary-button:hover {
+            background: #bfdbfe;
+        }
+
+        .danger-button {
+            background: #fee2e2;
+            color: var(--red);
+        }
+
+        .danger-button:hover {
+            background: #fecaca;
+        }
+
+        .small-button {
+            min-height: 34px;
+            padding: 6px 10px;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+
+        .table-panel {
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 14px 0;
+        }
+
+        .table-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .table-count {
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            padding: 14px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 680px;
+            border-collapse: collapse;
+            background: #ffffff;
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f8fafc;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        th button {
+            width: 100%;
+            min-height: 24px;
+            background: transparent;
+            color: inherit;
+            text-align: left;
+            font-weight: 800;
+            padding: 0;
+        }
+
+        tbody tr:hover {
+            background: #f7fbfa;
+        }
+
+        .number-cell {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 72px;
+            min-height: 28px;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-weight: 800;
+            font-size: 12px;
+        }
+
+        .pill.good {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pill.warn {
+            background: #fef3c7;
+            color: var(--amber);
+        }
+
+        .pill.risk {
+            background: #fee2e2;
+            color: var(--red);
+        }
+
+        .empty-row {
+            height: 160px;
+            text-align: center;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .toast {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            max-width: min(360px, calc(100vw - 36px));
+            background: #18332f;
+            color: #ffffff;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 12px 14px;
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity 180ms ease, transform 180ms ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 860px) {
+            .topbar-inner,
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar-inner {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .metrics {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 540px) {
+            main {
+                padding: 14px 12px 24px;
+            }
+
+            .topbar-inner {
+                padding: 16px 12px;
+            }
+
+            .metrics,
+            .actions-row,
+            .salary-row,
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            .brand h1 {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="topbar-inner">
+                <div class="brand">
+                    <h1>School Management</h1>
+                </div>
+                <div class="metrics" aria-label="School summary">
+                    <div class="metric">
+                        <span>Teachers</span>
+                        <strong id="teacherTotal">0</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Students</span>
+                        <strong id="studentTotal">0</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Class Avg</span>
+                        <strong id="classAverage">0.00</strong>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="workspace">
+                <section class="panel" aria-label="Entry form">
+                    <div class="tabs" role="tablist" aria-label="Management views">
+                        <button class="tab-button active" type="button" id="teachersTab">Teachers</button>
+                        <button class="tab-button" type="button" id="studentsTab">Students</button>
+                    </div>
+
+                    <form id="teacherForm" class="form-grid">
+                        <h2 class="form-title">Add Teacher</h2>
+                        <label>
+                            Teacher Name
+                            <input id="teacherName" type="text" maxlength="49" autocomplete="off" required>
+                        </label>
+                        <div class="salary-row">
+                            <label>
+                                Salary
+                                <input id="teacherSalary" type="number" min="30000" max="100000" required>
+                            </label>
+                            <button class="secondary-button" type="button" id="randomSalaryButton">Random</button>
+                        </div>
+                        <div class="actions-row">
+                            <button class="primary-button" type="submit">Add Teacher</button>
+                            <button class="danger-button" type="button" id="clearTeachersButton">Clear</button>
+                        </div>
+                    </form>
+
+                    <form id="studentForm" class="form-grid hidden">
+                        <h2 class="form-title">Add Student</h2>
+                        <label>
+                            Student ID
+                            <input id="studentId" type="number" min="1" required>
+                        </label>
+                        <label>
+                            Student Name
+                            <input id="studentName" type="text" maxlength="49" autocomplete="off" required>
+                        </label>
+                        <label>
+                            Grade X
+                            <input id="gradeX" type="number" min="0" max="100" step="0.01" required>
+                        </label>
+                        <label>
+                            Grade Y
+                            <input id="gradeY" type="number" min="0" max="100" step="0.01" required>
+                        </label>
+                        <div class="actions-row">
+                            <button class="primary-button" type="submit">Add Student</button>
+                            <button class="danger-button" type="button" id="clearStudentsButton">Clear</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="table-panel" aria-label="School records">
+                    <div class="table-header">
+                        <h2 id="tableTitle">Teachers</h2>
+                        <span class="table-count" id="tableCount">0 records</span>
+                    </div>
+                    <div class="filter-row">
+                        <input id="searchBox" type="search" placeholder="Search table" aria-label="Search table">
+                        <button class="secondary-button" type="button" id="sampleButton">Sample Data</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead id="tableHead"></thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const storageKey = "school-management-ui";
+
+        const initialState = {
+            activeView: "teachers",
+            sort: {
+                teachers: { key: "name", direction: "asc" },
+                students: { key: "id", direction: "asc" }
+            },
+            teachers: [
+                { name: "Anita Sharma", salary: 43860 },
+                { name: "Ravi Mehta", salary: 72500 }
+            ],
+            students: [
+                { id: 101, name: "Rahul Verma", gradeX: 88.5, gradeY: 91 },
+                { id: 102, name: "Neha Kapoor", gradeX: 76, gradeY: 84.5 }
+            ]
+        };
+
+        let state = loadState();
+        let toastTimer = 0;
+
+        const elements = {
+            teachersTab: document.getElementById("teachersTab"),
+            studentsTab: document.getElementById("studentsTab"),
+            teacherForm: document.getElementById("teacherForm"),
+            studentForm: document.getElementById("studentForm"),
+            teacherName: document.getElementById("teacherName"),
+            teacherSalary: document.getElementById("teacherSalary"),
+            studentId: document.getElementById("studentId"),
+            studentName: document.getElementById("studentName"),
+            gradeX: document.getElementById("gradeX"),
+            gradeY: document.getElementById("gradeY"),
+            randomSalaryButton: document.getElementById("randomSalaryButton"),
+            clearTeachersButton: document.getElementById("clearTeachersButton"),
+            clearStudentsButton: document.getElementById("clearStudentsButton"),
+            sampleButton: document.getElementById("sampleButton"),
+            searchBox: document.getElementById("searchBox"),
+            tableTitle: document.getElementById("tableTitle"),
+            tableCount: document.getElementById("tableCount"),
+            tableHead: document.getElementById("tableHead"),
+            tableBody: document.getElementById("tableBody"),
+            teacherTotal: document.getElementById("teacherTotal"),
+            studentTotal: document.getElementById("studentTotal"),
+            classAverage: document.getElementById("classAverage"),
+            toast: document.getElementById("toast")
+        };
+
+        function loadState() {
+            const stored = localStorage.getItem(storageKey);
+
+            if (!stored) {
+            return cloneData(initialState);
+            }
+
+            try {
+                return { ...cloneData(initialState), ...JSON.parse(stored) };
+            } catch (error) {
+                return cloneData(initialState);
+            }
+        }
+
+        function cloneData(data) {
+            return JSON.parse(JSON.stringify(data));
+        }
+
+        function saveState() {
+            localStorage.setItem(storageKey, JSON.stringify(state));
+        }
+
+        function randomSalary() {
+            return Math.floor(30000 + Math.random() * 70001);
+        }
+
+        function formatMoney(value) {
+            return "Rs. " + Number(value).toLocaleString("en-IN");
+        }
+
+        function normalizeText(value) {
+            return String(value).trim().toLowerCase();
+        }
+
+        function averageOf(student) {
+            return (Number(student.gradeX) + Number(student.gradeY)) / 2;
+        }
+
+        function gradeStatus(average) {
+            if (average >= 75) {
+                return { label: "Strong", className: "good" };
+            }
+
+            if (average >= 50) {
+                return { label: "Pass", className: "warn" };
+            }
+
+            return { label: "Review", className: "risk" };
+        }
+
+        function setView(view) {
+            state.activeView = view;
+            elements.searchBox.value = "";
+            saveState();
+            render();
+        }
+
+        function setSort(key) {
+            const currentSort = state.sort[state.activeView];
+
+            if (currentSort.key === key) {
+                currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
+            } else {
+                currentSort.key = key;
+                currentSort.direction = "asc";
+            }
+
+            saveState();
+            renderTable();
+        }
+
+        function sortedRecords(records) {
+            const { key, direction } = state.sort[state.activeView];
+            const multiplier = direction === "asc" ? 1 : -1;
+
+            return [...records].sort((left, right) => {
+                const leftValue = key === "average" ? averageOf(left) : left[key];
+                const rightValue = key === "average" ? averageOf(right) : right[key];
+
+                if (typeof leftValue === "number" && typeof rightValue === "number") {
+                    return (leftValue - rightValue) * multiplier;
+                }
+
+                return String(leftValue).localeCompare(String(rightValue)) * multiplier;
+            });
+        }
+
+        function filteredRecords(records) {
+            const query = normalizeText(elements.searchBox.value);
+
+            if (!query) {
+                return records;
+            }
+
+            return records.filter((record) => {
+                return Object.values(record).some((value) => normalizeText(value).includes(query));
+            });
+        }
+
+        function makeCell(text, className) {
+            const cell = document.createElement("td");
+            cell.textContent = text;
+
+            if (className) {
+                cell.className = className;
+            }
+
+            return cell;
+        }
+
+        function makeHeader(labels) {
+            elements.tableHead.replaceChildren();
+
+            const row = document.createElement("tr");
+
+            labels.forEach((column) => {
+                const header = document.createElement("th");
+
+                if (column.sortKey) {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.textContent = sortLabel(column.label, column.sortKey);
+                    button.addEventListener("click", () => setSort(column.sortKey));
+                    header.appendChild(button);
+                } else {
+                    header.textContent = column.label;
+                }
+
+                row.appendChild(header);
+            });
+
+            elements.tableHead.appendChild(row);
+        }
+
+        function sortLabel(label, sortKey) {
+            const currentSort = state.sort[state.activeView];
+
+            if (currentSort.key !== sortKey) {
+                return label;
+            }
+
+            return label + (currentSort.direction === "asc" ? " ^" : " v");
+        }
+
+        function renderTeacherTable(records) {
+            makeHeader([
+                { label: "No." },
+                { label: "Teacher Name", sortKey: "name" },
+                { label: "Salary", sortKey: "salary" },
+                { label: "Action" }
+            ]);
+
+            elements.tableBody.replaceChildren();
+
+            if (records.length === 0) {
+                addEmptyRow("No teachers found.", 4);
+                return;
+            }
+
+            records.forEach((teacher, index) => {
+                const row = document.createElement("tr");
+                row.appendChild(makeCell(String(index + 1), "number-cell"));
+                row.appendChild(makeCell(teacher.name));
+                row.appendChild(makeCell(formatMoney(teacher.salary), "number-cell"));
+                row.appendChild(makeDeleteCell("Delete", () => deleteTeacher(teacher)));
+                elements.tableBody.appendChild(row);
+            });
+        }
+
+        function renderStudentTable(records) {
+            makeHeader([
+                { label: "ID", sortKey: "id" },
+                { label: "Student Name", sortKey: "name" },
+                { label: "Grade X", sortKey: "gradeX" },
+                { label: "Grade Y", sortKey: "gradeY" },
+                { label: "Average", sortKey: "average" },
+                { label: "Status" },
+                { label: "Action" }
+            ]);
+
+            elements.tableBody.replaceChildren();
+
+            if (records.length === 0) {
+                addEmptyRow("No students found.", 7);
+                return;
+            }
+
+            records.forEach((student) => {
+                const average = averageOf(student);
+                const status = gradeStatus(average);
+                const row = document.createElement("tr");
+                const statusCell = document.createElement("td");
+                const pill = document.createElement("span");
+
+                pill.className = "pill " + status.className;
+                pill.textContent = status.label;
+                statusCell.appendChild(pill);
+
+                row.appendChild(makeCell(String(student.id), "number-cell"));
+                row.appendChild(makeCell(student.name));
+                row.appendChild(makeCell(Number(student.gradeX).toFixed(2), "number-cell"));
+                row.appendChild(makeCell(Number(student.gradeY).toFixed(2), "number-cell"));
+                row.appendChild(makeCell(average.toFixed(2), "number-cell"));
+                row.appendChild(statusCell);
+                row.appendChild(makeDeleteCell("Delete", () => deleteStudent(student.id)));
+                elements.tableBody.appendChild(row);
+            });
+        }
+
+        function makeDeleteCell(label, onDelete) {
+            const cell = document.createElement("td");
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "small-button";
+            button.textContent = label;
+            button.addEventListener("click", onDelete);
+            cell.appendChild(button);
+
+            return cell;
+        }
+
+        function addEmptyRow(message, columns) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+
+            cell.className = "empty-row";
+            cell.colSpan = columns;
+            cell.textContent = message;
+            row.appendChild(cell);
+            elements.tableBody.appendChild(row);
+        }
+
+        function renderTable() {
+            const activeRecords = state.activeView === "teachers" ? state.teachers : state.students;
+            const records = sortedRecords(filteredRecords(activeRecords));
+
+            elements.tableTitle.textContent = state.activeView === "teachers" ? "Teachers" : "Students";
+            elements.tableCount.textContent = records.length + (records.length === 1 ? " record" : " records");
+
+            if (state.activeView === "teachers") {
+                renderTeacherTable(records);
+            } else {
+                renderStudentTable(records);
+            }
+        }
+
+        function renderSummary() {
+            const average = state.students.length === 0
+                ? 0
+                : state.students.reduce((sum, student) => sum + averageOf(student), 0) / state.students.length;
+
+            elements.teacherTotal.textContent = String(state.teachers.length);
+            elements.studentTotal.textContent = String(state.students.length);
+            elements.classAverage.textContent = average.toFixed(2);
+        }
+
+        function render() {
+            const isTeacherView = state.activeView === "teachers";
+
+            elements.teachersTab.classList.toggle("active", isTeacherView);
+            elements.studentsTab.classList.toggle("active", !isTeacherView);
+            elements.teacherForm.classList.toggle("hidden", !isTeacherView);
+            elements.studentForm.classList.toggle("hidden", isTeacherView);
+
+            renderSummary();
+            renderTable();
+        }
+
+        function showToast(message) {
+            clearTimeout(toastTimer);
+            elements.toast.textContent = message;
+            elements.toast.classList.add("show");
+            toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 2200);
+        }
+
+        function deleteTeacher(selectedTeacher) {
+            state.teachers = state.teachers.filter((teacher) => teacher !== selectedTeacher);
+            saveState();
+            render();
+            showToast("Teacher removed.");
+        }
+
+        function deleteStudent(id) {
+            state.students = state.students.filter((student) => student.id !== id);
+            saveState();
+            render();
+            showToast("Student removed.");
+        }
+
+        elements.teacherForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const name = elements.teacherName.value.trim();
+            const salary = Number(elements.teacherSalary.value);
+
+            if (!name || salary < 30000 || salary > 100000) {
+                showToast("Enter a teacher and salary from 30000 to 100000.");
+                return;
+            }
+
+            state.teachers.push({ name, salary });
+            elements.teacherForm.reset();
+            elements.teacherSalary.value = randomSalary();
+            saveState();
+            render();
+            showToast("Teacher added.");
+        });
+
+        elements.studentForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const id = Number(elements.studentId.value);
+            const name = elements.studentName.value.trim();
+            const gradeX = Number(elements.gradeX.value);
+            const gradeY = Number(elements.gradeY.value);
+            const idExists = state.students.some((student) => student.id === id);
+
+            if (!id || !name || gradeX < 0 || gradeX > 100 || gradeY < 0 || gradeY > 100) {
+                showToast("Enter a valid ID, name, and grades from 0 to 100.");
+                return;
+            }
+
+            if (idExists) {
+                showToast("Student ID already exists.");
+                return;
+            }
+
+            state.students.push({ id, name, gradeX, gradeY });
+            elements.studentForm.reset();
+            saveState();
+            render();
+            showToast("Student added.");
+        });
+
+        elements.teachersTab.addEventListener("click", () => setView("teachers"));
+        elements.studentsTab.addEventListener("click", () => setView("students"));
+        elements.randomSalaryButton.addEventListener("click", () => {
+            elements.teacherSalary.value = randomSalary();
+        });
+        elements.clearTeachersButton.addEventListener("click", () => {
+            state.teachers = [];
+            saveState();
+            render();
+            showToast("Teacher table cleared.");
+        });
+        elements.clearStudentsButton.addEventListener("click", () => {
+            state.students = [];
+            saveState();
+            render();
+            showToast("Student table cleared.");
+        });
+        elements.sampleButton.addEventListener("click", () => {
+            state.teachers = cloneData(initialState.teachers);
+            state.students = cloneData(initialState.students);
+            saveState();
+            render();
+            showToast("Sample data loaded.");
+        });
+        elements.searchBox.addEventListener("input", renderTable);
+
+        elements.teacherSalary.value = randomSalary();
+        render();
+    </script>
+</body>
+</html>
